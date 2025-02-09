@@ -1,0 +1,52 @@
+services:
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-bifrost
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ../:/var/www/app
+      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf
+
+  app-php83:
+    build: php83
+    container_name: php-bifrost
+    volumes:
+      - ../:/var/www/app
+    working_dir: /var/www/app
+    ports:
+      - 9074:9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  app-php83-queue:
+    build: php83
+    container_name: php-bifrost-queue
+    command:
+      php artisan queue:work
+    volumes:
+      - ../:/var/www/app
+    working_dir: /var/www/app
+
+  mysql:
+    image: mariadb:10.5.8
+    container_name: mysql-bifrost
+    environment:
+      - MYSQL_DATABASE=bifrost-db
+      - MYSQL_ROOT_PASSWORD=scr0g!!#45ty
+    ports:
+      - '3306:3306'
+
+  redis:
+    image: redis
+    container_name: redis-bifrost
+    ports:
+      - 6379:6379
+
+networks:
+  minha-rede:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
