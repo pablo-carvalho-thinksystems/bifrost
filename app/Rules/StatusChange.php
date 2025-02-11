@@ -13,7 +13,7 @@ class StatusChange implements ValidationRule
     private ?TravelRequestStatusEnum $currentStatus;
     private string $travelRequestId;
 
-    public function __construct(string $currentStatus, string $travelRequestId)
+    public function __construct(?string $currentStatus, string $travelRequestId)
     {
         $this->currentStatus   = TravelRequestStatusEnum::tryFrom($currentStatus);
         $this->travelRequestId = $travelRequestId;

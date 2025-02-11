@@ -24,7 +24,7 @@ class StatusChangeRequest extends FormRequest
         $travelRequest = TravelRequest::query()->find($this->input('travel_request_id'));
 
         $this->merge([
-            'current_status' => $travelRequest->status
+            'current_status' => $travelRequest?->status
         ]);
     }
 
