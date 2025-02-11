@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class TravelRequest extends Model
@@ -32,5 +34,16 @@ class TravelRequest extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeVisibilityScope(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        if ($user && $user->hasRole('customer')) {
+            return $query->where('user_id', $user->id);
+        }
+
+        return $query;
     }
 }

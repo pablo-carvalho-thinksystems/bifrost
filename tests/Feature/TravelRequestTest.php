@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Dtos\TravelRequestDto;
 use App\Enums\TravelRequestStatusEnum;
 use App\Exceptions\ChangeStatusPermissionException;
-use App\Models\User;
 use App\Services\TravelRequestService;
 use App\Services\TravelRequestStatusService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,10 +24,9 @@ class TravelRequestTest extends TestCase
 
         $travelRequestService = $this->getTravelRequestServiceInstance();
 
-        $travelRequestDto = new TravelRequestDto();
-        $travelRequestDto->fillFromArray($this->getPayload());
-
         $user = $this->getManagerUser();
+        $travelRequestDto = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($user->id));
         auth()->login($user);
 
         $travelRequest = $travelRequestService->createTravelRequest($travelRequestDto);
@@ -47,10 +45,10 @@ class TravelRequestTest extends TestCase
     {
         $this->seed();
         $travelRequestService = $this->getTravelRequestServiceInstance();
-        $travelRequestDto     = new TravelRequestDto();
-        $travelRequestDto->fillFromArray($this->getPayload());
 
         $user = $this->getManagerUser();
+        $travelRequestDto     = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($user->id));
         auth()->login($user);
 
         $travelRequest = $travelRequestService->createTravelRequest($travelRequestDto);
@@ -67,10 +65,10 @@ class TravelRequestTest extends TestCase
     {
         $this->seed();
         $travelRequestService = $this->getTravelRequestServiceInstance();
-        $travelRequestDto     = new TravelRequestDto();
-        $travelRequestDto->fillFromArray($this->getPayload());
 
         $user = $this->getCustomerUser();
+        $travelRequestDto     = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($user->id));
         auth()->login($user);
 
         $travelRequest = $travelRequestService->createTravelRequest($travelRequestDto);
@@ -83,6 +81,90 @@ class TravelRequestTest extends TestCase
         $this->assertEquals($travelRequest->status, TravelRequestStatusEnum::REQUESTED);
     }
 
+    public function testShouldListAllWithManager()
+    {
+        $this->seed();
+        $travelRequestService = $this->getTravelRequestServiceInstance();
+
+        $user = $this->getManagerUser();
+        $travelRequestDto     = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($user->id));
+        auth()->login($user);
+
+        $travelRequestService->createTravelRequest($travelRequestDto);
+
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(1, $travelRequests);
+
+        $travelRequestService->createTravelRequest($travelRequestDto);
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(2, $travelRequests);
+    }
+
+    public function testOnlyCustomerTravelRequests()
+    {
+        $this->seed();
+        $travelRequestService = $this->getTravelRequestServiceInstance();
+
+        $userCustomer = $this->getCustomerUser();
+        $travelRequestDto     = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($userCustomer->id));
+        auth()->login($userCustomer);
+
+        $travelRequestService->createTravelRequest($travelRequestDto);
+
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(1, $travelRequests);
+
+        $travelRequestService->createTravelRequest($travelRequestDto);
+
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(2, $travelRequests);
+
+        $userManager = $this->getManagerUser();
+        $travelRequestDto     = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($userManager->id));
+        auth()->login($userManager);
+
+        $travelRequestService->createTravelRequest($travelRequestDto);
+
+        auth()->login($userCustomer);
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(2, $travelRequests);
+
+        auth()->login($userManager);
+        $travelRequests = $travelRequestService->list();
+        $this->assertCount(3, $travelRequests);
+    }
+
+    public function testShouldShowCustomerTravelRequest()
+    {
+        $this->seed();
+        $this->getManagerUser();
+
+        $travelRequestService = $this->getTravelRequestServiceInstance();
+
+        $userCustomer = $this->getCustomerUser();
+        $travelRequestDto = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($userCustomer->id));
+        auth()->login($userCustomer);
+
+        $createdTravelRequest = $travelRequestService->createTravelRequest($travelRequestDto);
+        $travelRequest = $travelRequestService->show($createdTravelRequest->external_id);
+        $this->assertSame($createdTravelRequest->id, $travelRequest->id);
+
+        $userManager = $this->getManagerUser();
+        $travelRequestDto = new TravelRequestDto();
+        $travelRequestDto->fillFromArray($this->getPayload($userManager->id));
+        auth()->login($userManager);
+
+        $createdTravelRequest = $travelRequestService->createTravelRequest($travelRequestDto);
+
+        auth()->login($userCustomer);
+        $travelRequest = $travelRequestService->show($createdTravelRequest->external_id);
+        $this->assertNull($travelRequest);
+    }
+
     private function getTravelRequestServiceInstance(): TravelRequestService
     {
         return app(TravelRequestService::class);
@@ -93,10 +175,10 @@ class TravelRequestTest extends TestCase
         return app(TravelRequestStatusService::class);
     }
 
-    private function getPayload(): array
+    private function getPayload(int $userId): array
     {
         return [
-            'user_id'        => User::query()->first()->id,
+            'user_id'        => $userId,
             'departure_date' => '2022-01-01',
             'return_date'    => '2022-01-10',
             'destination'    => 'Paris',

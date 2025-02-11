@@ -6,6 +6,8 @@ use App\Dtos\TravelRequestDto;
 use App\Enums\TravelRequestStatusEnum;
 use App\Models\TravelRequest;
 use App\Repositories\Contracts\TravelRequestRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -32,5 +34,15 @@ class TravelRequestService
         }
 
         return $travelRequest;
+    }
+
+    public function list(array $filters = []): LengthAwarePaginator
+    {
+        return $this->travelRequestRepository->list($filters);
+    }
+
+    public function show(string $id): ?TravelRequest
+    {
+        return $this->travelRequestRepository->show($id);
     }
 }

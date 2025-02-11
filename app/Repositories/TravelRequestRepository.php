@@ -7,6 +7,7 @@ use App\Enums\TravelRequestStatusEnum;
 use App\Models\TravelRequest;
 use App\Repositories\Abstracts\AbstractBaseModel;
 use App\Repositories\Contracts\TravelRequestRepositoryInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TravelRequestRepository extends AbstractBaseModel implements TravelRequestRepositoryInterface
 {
@@ -18,15 +19,24 @@ class TravelRequestRepository extends AbstractBaseModel implements TravelRequest
         return $this->getModel()->query()->create($travelRequestDto->toArray());
     }
 
-    public function updateTravelRequestStatus(int $travelRequestId, TravelRequestStatusEnum $requestStatusEnum): ?TravelRequest
+    public function list(array $filters = []): LengthAwarePaginator
     {
-        $travelRequest = $this->getModel()->query()->find($travelRequestId);
+        return $this->getModel()
+            ->query()
+            ->visibilityScope()
+            ->when($filters['status'] ?? null, fn($query, $status) => $query->where('status', $status))
+            ->when($filters['partida_inicio']?? null, fn($query, $partidaInicio) => $query->where('departure_date', '>=', $partidaInicio))
+            ->when($filters['partida_fim']?? null, fn($query, $partidaFim) => $query->where('departure_date', '<=', $partidaFim))
+            ->when($filters['destination']?? null, fn($query, $destino) => $query->where('destination', $destino))
+            ->paginate();
+    }
 
-        if ($travelRequest) {
-            $travelRequest->status = $requestStatusEnum;
-            $travelRequest->save();
-        }
-
-        return $travelRequest;
+    public function show(string $id): ?TravelRequest
+    {
+        return $this->getModel()
+            ->query()
+            ->visibilityScope()
+            ->where('external_id', $id)
+            ->first();
     }
 }

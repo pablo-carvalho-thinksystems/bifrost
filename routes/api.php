@@ -14,6 +14,8 @@ Route::prefix('v1')->group(function () {
         Route::prefix('travel-requests')->group(function () {
             Route::post('status-change', [TravelRequestStatusController::class, 'changeStatus']);
             Route::post('/', [TravelRequestController::class, 'create']);
+            Route::get('/', [TravelRequestController::class, 'list']);
+            Route::get('{external_id}', [TravelRequestController::class, 'show']);
         });
     });
 });

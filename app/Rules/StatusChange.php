@@ -2,11 +2,9 @@
 
 namespace App\Rules;
 
-use App\Enums\AvailableRolesEnum;
 use App\Enums\TravelRequestStatusEnum;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Collection;
 
 class StatusChange implements ValidationRule
 {
