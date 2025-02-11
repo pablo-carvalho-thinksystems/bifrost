@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Dtos\TravelRequestDto;
 use App\Enums\TravelRequestStatusEnum;
+use App\Events\NewTravelRequestStatusChangeEvent;
 use App\Exceptions\ChangeStatusPermissionException;
 use App\Services\TravelRequestService;
 use App\Services\TravelRequestStatusService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class TravelRequestTest extends TestCase
@@ -55,8 +57,13 @@ class TravelRequestTest extends TestCase
         $this->assertEquals($travelRequest->status, TravelRequestStatusEnum::REQUESTED);
 
         $travelRequestStatusService = $this->getTravelRequestStatusServiceInstance();
+        Event::fake();
         $travelRequestStatusService->updateTravelRequestStatus($travelRequest->id, TravelRequestStatusEnum::APPROVED);
         $travelRequest->refresh();
+        Event::assertDispatched(NewTravelRequestStatusChangeEvent::class, function ($event) use ($user, $travelRequest) {
+            return $event->user->id === $user->id &&
+                $event->travelRequest->id === $travelRequest->id;
+        });
 
         $this->assertEquals($travelRequest->status, TravelRequestStatusEnum::APPROVED->value);
     }
