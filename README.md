@@ -76,8 +76,9 @@ make migrate
 ✅ Rodando os testes
 
 Para executar os testes dentro do container, utilize o seguinte comando:
-
+```sh
 docker exec -it php-bifrost php artisan test
+```
 
 Isso executará todos os testes da aplicação.
 
