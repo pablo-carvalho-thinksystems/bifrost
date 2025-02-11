@@ -20,6 +20,9 @@ services:
       - 9074:9000
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - mysql
+      - redis
 
   app-php83-queue:
     build: php83
@@ -35,7 +38,7 @@ services:
     container_name: mysql-bifrost
     environment:
       - MYSQL_DATABASE=bifrost-db
-      - MYSQL_ROOT_PASSWORD=scr0g!!#45ty
+      - MYSQL_ROOT_PASSWORD=pass123
     ports:
       - '3306:3306'
 
