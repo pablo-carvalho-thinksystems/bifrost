@@ -16,11 +16,11 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         foreach (AvailableRolesEnum::cases() as $role) {
-            Role::query()->firstOrCreate(['name' => $role->value, 'guard_name' => 'web']);
+            Role::query()->firstOrCreate(['name' => $role->value, 'guard_name' => 'api']);
         }
 
         foreach (AvailablePermissionsEnum::cases() as $permission) {
-            Permission::query()->firstOrCreate(['name' => $permission->value, 'guard_name' => 'web']);
+            Permission::query()->firstOrCreate(['name' => $permission->value, 'guard_name' => 'api']);
         }
 
         $permissionsByRole = [
@@ -29,7 +29,7 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($permissionsByRole as $roleName => $permissions) {
-            $role = Role::query()->firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+            $role = Role::query()->firstOrCreate(['name' => $roleName, 'guard_name' => 'api']);
             $role->givePermissionTo($permissions);
         }
     }

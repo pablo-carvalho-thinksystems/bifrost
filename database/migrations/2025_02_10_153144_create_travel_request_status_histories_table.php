@@ -10,14 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('travel_requests', function (Blueprint $table) {
+        Schema::create('travel_request_status_histories', function (Blueprint $table) {
             $table->id();
-            $table->uuid('external_id')->unique();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('travel_request_id');
+            $table->foreign('travel_request_id')->references('id')->on('travel_requests');
             $table->string('status');
-            $table->string('destination');
-            $table->dateTime('departure_date');
-            $table->dateTime('return_date');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('travel_requests');
+        Schema::dropIfExists('travel_request_status_histories');
     }
 };
