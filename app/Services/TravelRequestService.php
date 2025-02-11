@@ -45,4 +45,9 @@ class TravelRequestService
     {
         return $this->travelRequestRepository->show($id);
     }
+
+    public function canBeCancelled(int $travelRequestId): bool
+    {
+        return $this->travelRequestRepository->canBeCancelled($travelRequestId);
+    }
 }

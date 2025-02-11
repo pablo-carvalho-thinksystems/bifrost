@@ -47,7 +47,7 @@ class StatusChangeRequest extends FormRequest
                 'required',
                 'string',
                 new Enum(TravelRequestStatusEnum::class),
-                new StatusChange(request('current_status'))
+                new StatusChange(request('current_status'), request('travel_request_id'))
             ],
         ];
     }
