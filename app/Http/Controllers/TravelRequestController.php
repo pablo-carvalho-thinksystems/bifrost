@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Dtos\TravelRequestDto;
+use App\Http\Requests\CreateTravelRequest;
 use App\Http\Requests\TravelRequestShowRequest;
 use App\Http\Resources\TravelRequestResource;
 use App\Services\TravelRequestService;
@@ -16,7 +17,7 @@ class TravelRequestController extends Controller
     {
     }
 
-    public function create(Request $request): JsonResponse
+    public function create(CreateTravelRequest $request): JsonResponse
     {
         $travelRequestDto = (new TravelRequestDto())->fillFromArray($request->all());
         $travelRequest    = $this->travelRequestService->createTravelRequest($travelRequestDto);
