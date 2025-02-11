@@ -19,8 +19,7 @@ class TravelRequestResource extends JsonResource
             'status'      => $this->status,
             'destination' => $this->destination,
             'departure_date' => $this->departure_date,
-            'return_date'    => $this->return_date,
-            'created_at'  => $this->created_at,
+            'return_date'    => $this->return_date
         ];
     }
 }
