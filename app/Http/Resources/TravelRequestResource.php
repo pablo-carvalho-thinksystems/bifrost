@@ -15,9 +15,11 @@ class TravelRequestResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'created_at'  => $this->created_at,
             'external_id' => $this->external_id,
             'status'      => $this->status,
+            'destination' => $this->destination,
+            'departure_date' => $this->departure_date,
+            'return_date'    => $this->return_date
         ];
     }
 }
