@@ -16,8 +16,17 @@ class TravelRequestRepository extends AbstractBaseModel implements TravelRequest
 
     public function create(TravelRequestDto $travelRequestDto): ?TravelRequest
     {
+        $travelRequestDto->created_at = Carbon::now();
+        $travelRequestDto->updated_at = Carbon::now();
         $travelRequestDto->status = TravelRequestStatusEnum::REQUESTED;
-        return $this->getModel()->query()->create($travelRequestDto->toArray());
+        return $this->getModel()->query()->create([
+            'external_id'    => $travelRequestDto->external_id ?? '',
+            'user_id'        => $travelRequestDto->user_id,
+            'status'         => $travelRequestDto->status,
+            'destination'    => $travelRequestDto->destination,
+            'departure_date' => $travelRequestDto->departure_date,
+            'return_date'    => $travelRequestDto->return_date,
+        ]);
     }
 
     public function list(array $filters = []): LengthAwarePaginator
