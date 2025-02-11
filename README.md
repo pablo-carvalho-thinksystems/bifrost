@@ -73,3 +73,14 @@ Caso precise rodar manualmente as migrations e seeds, utilize:
 ```sh
 make migrate
 ```
+✅ Rodando os testes
+
+Para executar os testes dentro do container, utilize o seguinte comando:
+
+docker exec -it php-bifrost php artisan test
+
+Isso executará todos os testes da aplicação.
+
+📌 Testando manualmente
+
+Para visualizar e testar manualmente as rotas disponíveis, utilize a collection do Postman que está localizada na raiz do projeto. (Bifrost.postman_collection.json)
